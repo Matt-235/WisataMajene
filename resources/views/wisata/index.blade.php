@@ -170,14 +170,87 @@
             @endforeach
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination - Diperbaiki -->
+        @if($wisata->hasPages())
         <div class="row">
             <div class="col-12">
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $wisata->appends(request()->except('page'))->links() }}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {{-- Previous Page Link --}}
+                            @if($wisata->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-angle-left"></i>
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $wisata->previousPageUrl() }}" aria-label="Previous">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @php
+                                $current = $wisata->currentPage();
+                                $last = $wisata->lastPage();
+                                $start = max($current - 1, 1);
+                                $end = min($current + 1, $last);
+                            @endphp
+
+                            {{-- First Page Link --}}
+                            @if($start > 1)
+                                <li class="page-item {{ 1 == $current ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $wisata->url(1) }}">1</a>
+                                </li>
+                                @if($start > 2)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                            @endif
+
+                            {{-- Array Of Links --}}
+                            @for($i = $start; $i <= $end; $i++)
+                                <li class="page-item {{ $i == $current ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $wisata->url($i) }}">{{ $i }}</a>
+                                </li>
+                            @endfor
+
+                            {{-- Last Page Link --}}
+                            @if($end < $last)
+                                @if($end < $last - 1)
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                @endif
+                                <li class="page-item {{ $last == $current ? 'active' : '' }}">
+                                    <a class="page-link" href="{{ $wisata->url($last) }}">{{ $last }}</a>
+                                </li>
+                            @endif
+
+                            {{-- Next Page Link --}}
+                            @if($wisata->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $wisata->nextPageUrl() }}" aria-label="Next">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-angle-right"></i>
+                                    </span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
+        @endif
     @endif
 </div>
 @endsection
@@ -200,6 +273,66 @@
     .card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Pagination Styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        color: #3498db;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .page-link:hover {
+        color: #2c3e50;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #3498db;
+        border-color: #3498db;
+        color: white;
+    }
+    
+    .page-item.disabled .page-link {
+        color: #adb5bd;
+        background-color: white;
+        border-color: #dee2e6;
+    }
+    
+    .page-link i {
+        font-size: 0.8rem;
+    }
+    
+    /* Responsive pagination */
+    @media (max-width: 768px) {
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .page-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .page-link {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .pagination li {
+            margin: 2px;
+        }
     }
 </style>
 @endpush
